@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import KanbanBoard from "./components/KanbanBoard";
 import { sampleTasks } from "./data/sampleTasks";
-import type { Task, Priority } from "./types/task";
+import type { Task } from "./types/task";
 
 const STORAGE_KEY = "kanban_tasks";
 
