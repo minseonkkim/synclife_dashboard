@@ -1,25 +1,37 @@
-import type { Status, Task } from "../types/task";
+import { Droppable } from "@hello-pangea/dnd";
+import type { Task, Status } from "../types/task";
 import TaskCard from "./TaskCard";
 
-interface Props {
+interface ColumnProps {
   title: string;
   status: Status;
   tasks: Task[];
 }
 
-const Column = ({ title, status, tasks }: Props) => {
-  const filteredTasks = tasks.filter((task) => task.status === status);
+const Column = ({ title, status, tasks }: ColumnProps) => {
+  const filtered = tasks.filter((task) => task.status === status);
 
   return (
-    <div className="w-80 bg-gray-200 rounded-xl p-4">
-      <h3 className="text-center font-bold mb-4">{title}</h3>
+    <Droppable droppableId={status}>
+      {(provided, snapshot) => (
+        <div
+          ref={provided.innerRef}
+          {...provided.droppableProps}
+          className={`w-72 min-h-[500px] rounded-lg p-4 transition-colors
+            ${snapshot.isDraggingOver ? "bg-gray-200" : "bg-gray-100"}
+          `}
+        >
+          <h3 className="font-bold mb-4">{title}</h3>
 
-      <div className="flex flex-col gap-3">
-        {filteredTasks.map((task) => (
-          <TaskCard key={task.id} task={task} />
-        ))}
-      </div>
-    </div>
+          <div className="flex flex-col gap-3">
+            {filtered.map((task, index) => (
+              <TaskCard key={task.id} task={task} index={index} />
+            ))}
+            {provided.placeholder}
+          </div>
+        </div>
+      )}
+    </Droppable>
   );
 };
 

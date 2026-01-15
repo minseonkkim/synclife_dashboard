@@ -29,9 +29,17 @@ function App() {
     ]);
   };
 
+  const moveTask = (taskId: number, newStatus: Task["status"]) => {
+    setTasks((prev) =>
+      prev.map((task) =>
+        task.id === taskId ? { ...task, status: newStatus } : task
+      )
+    );
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <KanbanBoard tasks={tasks} onAddTask={addTask} />
+      <KanbanBoard tasks={tasks} onAddTask={addTask} onMoveTask={moveTask} />
     </div>
   );
 }
