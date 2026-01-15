@@ -8,4 +8,5 @@ export interface Task {
   priority: Priority;
   status: Status;
   createdAt: string;
+  updatedAt?: string;
 }

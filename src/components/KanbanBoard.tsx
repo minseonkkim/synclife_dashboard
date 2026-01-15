@@ -12,9 +12,17 @@ interface KanbanBoardProps {
     priority: Priority;
   }) => void;
   onMoveTask: (taskId: number, status: Task["status"]) => void;
+  onUpdateTask: (task: Task) => void;
+  onDeleteTask: (id: number) => void;
 }
 
-const KanbanBoard = ({ tasks, onAddTask, onMoveTask }: KanbanBoardProps) => {
+const KanbanBoard = ({
+  tasks,
+  onAddTask,
+  onMoveTask,
+  onUpdateTask,
+  onDeleteTask,
+}: KanbanBoardProps) => {
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -102,9 +110,27 @@ const KanbanBoard = ({ tasks, onAddTask, onMoveTask }: KanbanBoardProps) => {
 
         {/* 칸반보드 컬럼 */}
         <div className="flex gap-6 justify-center">
-          <Column title="To Do" status="TODO" tasks={tasks} />
-          <Column title="In Progress" status="IN_PROGRESS" tasks={tasks} />
-          <Column title="Done" status="DONE" tasks={tasks} />
+          <Column
+            title="To Do"
+            status="TODO"
+            tasks={tasks}
+            onUpdateTask={onUpdateTask}
+            onDeleteTask={onDeleteTask}
+          />
+          <Column
+            title="In Progress"
+            status="IN_PROGRESS"
+            tasks={tasks}
+            onUpdateTask={onUpdateTask}
+            onDeleteTask={onDeleteTask}
+          />
+          <Column
+            title="Done"
+            status="DONE"
+            tasks={tasks}
+            onUpdateTask={onUpdateTask}
+            onDeleteTask={onDeleteTask}
+          />
         </div>
       </div>
     </DragDropContext>

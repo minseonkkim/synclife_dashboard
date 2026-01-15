@@ -37,9 +37,29 @@ function App() {
     );
   };
 
+  const updateTask = (updated: Task) => {
+    setTasks((prev) =>
+      prev.map((t) =>
+        t.id === updated.id
+          ? { ...updated, updatedAt: new Date().toISOString() }
+          : t
+      )
+    );
+  };
+
+  const deleteTask = (id: number) => {
+    setTasks((prev) => prev.filter((t) => t.id !== id));
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <KanbanBoard tasks={tasks} onAddTask={addTask} onMoveTask={moveTask} />
+      <KanbanBoard
+        tasks={tasks}
+        onAddTask={addTask}
+        onMoveTask={moveTask}
+        onUpdateTask={updateTask}
+        onDeleteTask={deleteTask}
+      />
     </div>
   );
 }

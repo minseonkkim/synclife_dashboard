@@ -6,9 +6,17 @@ interface ColumnProps {
   title: string;
   status: Status;
   tasks: Task[];
+  onUpdateTask: (task: Task) => void;
+  onDeleteTask: (id: number) => void;
 }
 
-const Column = ({ title, status, tasks }: ColumnProps) => {
+const Column = ({
+  title,
+  status,
+  tasks,
+  onUpdateTask,
+  onDeleteTask,
+}: ColumnProps) => {
   const filtered = tasks.filter((task) => task.status === status);
 
   return (
@@ -25,7 +33,13 @@ const Column = ({ title, status, tasks }: ColumnProps) => {
 
           <div className="flex flex-col gap-3">
             {filtered.map((task, index) => (
-              <TaskCard key={task.id} task={task} index={index} />
+              <TaskCard
+                key={task.id}
+                task={task}
+                index={index}
+                onUpdate={onUpdateTask}
+                onDelete={onDeleteTask}
+              />
             ))}
             {provided.placeholder}
           </div>
