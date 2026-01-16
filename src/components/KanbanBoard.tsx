@@ -40,6 +40,12 @@ const KanbanBoard = ({
     return stored ? JSON.parse(stored) : [];
   });
 
+  type SortKey = "DATE" | "PRIORITY";
+  type SortOrder = "ASC" | "DESC";
+
+  const [sortKey, setSortKey] = useState<SortKey>("DATE");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("DESC");
+
   /* 검색 디바운싱 */
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -60,6 +66,28 @@ const KanbanBoard = ({
     const statusMatch = statusFilter === "ALL" || task.status === statusFilter;
 
     return keywordMatch && priorityMatch && statusMatch;
+  });
+
+  const sortedTasks = [...filteredTasks].sort((a, b) => {
+    if (!sortKey) return 0;
+
+    // 날짜 정렬
+    if (sortKey === "DATE") {
+      const aTime = new Date(a.createdAt).getTime();
+      const bTime = new Date(b.createdAt).getTime();
+      return sortOrder === "ASC" ? aTime - bTime : bTime - aTime;
+    }
+
+    // 우선순위 정렬
+    if (sortKey === "PRIORITY") {
+      const priorityOrder = { High: 3, Medium: 2, Low: 1 };
+
+      const diff = priorityOrder[a.priority] - priorityOrder[b.priority];
+
+      return sortOrder === "ASC" ? diff : -diff;
+    }
+
+    return 0;
   });
 
   const handleDragEnd = (result: DropResult) => {
@@ -83,6 +111,10 @@ const KanbanBoard = ({
           setStatusFilter={setStatusFilter}
           recentKeywords={recentKeywords}
           setRecentKeywords={setRecentKeywords}
+          sortKey={sortKey}
+          sortOrder={sortOrder}
+          setSortKey={setSortKey}
+          setSortOrder={setSortOrder}
         />
 
         {/* 추가 버튼 */}
@@ -104,7 +136,7 @@ const KanbanBoard = ({
           <Column
             title="To Do"
             status="TODO"
-            tasks={filteredTasks}
+            tasks={sortedTasks}
             onUpdateTask={onUpdateTask}
             onDeleteTask={onDeleteTask}
             searchKeyword={debouncedKeyword}
@@ -112,7 +144,7 @@ const KanbanBoard = ({
           <Column
             title="In Progress"
             status="IN_PROGRESS"
-            tasks={filteredTasks}
+            tasks={sortedTasks}
             onUpdateTask={onUpdateTask}
             onDeleteTask={onDeleteTask}
             searchKeyword={debouncedKeyword}
@@ -120,7 +152,7 @@ const KanbanBoard = ({
           <Column
             title="Done"
             status="DONE"
-            tasks={filteredTasks}
+            tasks={sortedTasks}
             onUpdateTask={onUpdateTask}
             onDeleteTask={onDeleteTask}
             searchKeyword={debouncedKeyword}

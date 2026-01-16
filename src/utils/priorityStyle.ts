@@ -5,15 +5,15 @@ export const priorityStyleMap: Record<
   { label: string; color: string }
 > = {
   High: {
-    label: "HIGH",
+    label: "High",
     color: "#ff6b6b",
   },
   Medium: {
-    label: "MEDIUM",
+    label: "Medium",
     color: "#feca57",
   },
   Low: {
-    label: "LOW",
+    label: "Low",
     color: "#1dd1a1",
   },
 };
