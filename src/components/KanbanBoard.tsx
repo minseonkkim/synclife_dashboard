@@ -99,7 +99,7 @@ const KanbanBoard = ({
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <div className="w-full max-w-6xl mx-auto py-2 md:py-6">
-        {/* 🔍 검색창 */}
+        {/* 검색창 */}
         <div className="flex justify-center items-center gap-2 mb-3 mx-4 md:mx-0">
           <input
             value={searchKeyword}
@@ -186,6 +186,54 @@ const KanbanBoard = ({
             + 새 Task 추가
           </button>
         </div>
+
+        {/* 추가 모달 */}
+        {showModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg w-96">
+              <h2 className="text-lg font-bold mb-4">새 태스크 추가</h2>
+
+              <input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="제목"
+                className="w-full border rounded px-3 py-2 mb-3"
+              />
+
+              <select
+                value={priority}
+                onChange={(e) => setPriority(e.target.value as Priority)}
+                className="w-full border rounded px-3 py-2 mb-3"
+              >
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+              </select>
+
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="설명 (선택)"
+                className="w-full border rounded px-3 py-2 mb-4"
+              />
+
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="px-4 py-2 border rounded"
+                >
+                  취소
+                </button>
+                <button
+                  onClick={handleAddTask}
+                  className="px-4 py-2 bg-black text-white rounded"
+                >
+                  추가
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* 컬럼 */}
         <div className="flex flex-col md:flex-row md:gap-2 lg:gap-6 justify-center">
