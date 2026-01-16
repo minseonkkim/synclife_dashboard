@@ -27,6 +27,11 @@ const KanbanBoard = ({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<Priority>("Medium");
+  const [searchKeyword, setSearchKeyword] = useState("");
+
+  const filteredTasks = tasks.filter((task) =>
+    task.title.toLowerCase().includes(searchKeyword.toLowerCase())
+  );
 
   const handleAddTask = () => {
     if (!title.trim()) return;
@@ -52,13 +57,32 @@ const KanbanBoard = ({
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <div className="w-full max-w-6xl">
+        {/* 검색창 */}
+        <div className="flex justify-center items-center gap-2 mb-4">
+          <input
+            value={searchKeyword}
+            onChange={(e) => setSearchKeyword(e.target.value)}
+            placeholder="Task 제목 검색"
+            className="w-72 px-4 py-2 border rounded"
+          />
+
+          {searchKeyword && (
+            <button
+              onClick={() => setSearchKeyword("")}
+              className="px-3 py-2 text-sm border rounded hover:bg-gray-100"
+            >
+              초기화
+            </button>
+          )}
+        </div>
+
         {/* 추가 버튼 */}
         <div className="flex justify-center mb-4">
           <button
             onClick={() => setShowModal(true)}
             className="bg-black text-white text-sm px-4 py-2 rounded hover:opacity-80"
           >
-            + 새 태스크 추가
+            + 새 Task 추가
           </button>
         </div>
 
@@ -113,21 +137,21 @@ const KanbanBoard = ({
           <Column
             title="To Do"
             status="TODO"
-            tasks={tasks}
+            tasks={filteredTasks}
             onUpdateTask={onUpdateTask}
             onDeleteTask={onDeleteTask}
           />
           <Column
             title="In Progress"
             status="IN_PROGRESS"
-            tasks={tasks}
+            tasks={filteredTasks}
             onUpdateTask={onUpdateTask}
             onDeleteTask={onDeleteTask}
           />
           <Column
             title="Done"
             status="DONE"
-            tasks={tasks}
+            tasks={filteredTasks}
             onUpdateTask={onUpdateTask}
             onDeleteTask={onDeleteTask}
           />
