@@ -68,7 +68,7 @@ function App() {
 
   return (
     <div className={darkMode ? "dark" : ""}>
-      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-black dark:text-white">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-black dark:text-white">
         <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
         <div className="flex items-center justify-center">
           <KanbanBoard

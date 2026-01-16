@@ -23,6 +23,7 @@ const KanbanBoard = ({
   onUpdateTask,
   onDeleteTask,
 }: KanbanBoardProps) => {
+  /* 상태 */
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -31,12 +32,17 @@ const KanbanBoard = ({
   const [searchKeyword, setSearchKeyword] = useState("");
   const [debouncedKeyword, setDebouncedKeyword] = useState("");
 
+  const [priorityFilter, setPriorityFilter] = useState<Priority | "ALL">("ALL");
+  const [statusFilter, setStatusFilter] = useState<Task["status"] | "ALL">(
+    "ALL"
+  );
+
   const [recentKeywords, setRecentKeywords] = useState<string[]>(() => {
     const stored = localStorage.getItem("recent_keywords");
     return stored ? JSON.parse(stored) : [];
   });
 
-  /* 검색 디바운싱 (필터용) */
+  /* 검색 디바운싱 */
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedKeyword(searchKeyword);
@@ -45,7 +51,7 @@ const KanbanBoard = ({
     return () => clearTimeout(timer);
   }, [searchKeyword]);
 
-  /* 최근 검색어 저장 */
+  /* 최근 검색어 */
   const saveRecentKeyword = (keyword: string) => {
     if (!keyword.trim()) return;
 
@@ -54,7 +60,6 @@ const KanbanBoard = ({
         0,
         5
       );
-
       localStorage.setItem("recent_keywords", JSON.stringify(updated));
       return updated;
     });
@@ -68,13 +73,27 @@ const KanbanBoard = ({
     });
   };
 
-  /* 검색 필터 */
-  const filteredTasks =
-    debouncedKeyword.trim() === ""
-      ? tasks
-      : tasks.filter((task) =>
-          task.title.toLowerCase().includes(debouncedKeyword.toLowerCase())
-        );
+  /* 전체 초기화 */
+  const resetAllFilters = () => {
+    setSearchKeyword("");
+    setDebouncedKeyword("");
+    setPriorityFilter("ALL");
+    setStatusFilter("ALL");
+  };
+
+  /* 필터링 (AND 조건) */
+  const filteredTasks = tasks.filter((task) => {
+    const keywordMatch =
+      debouncedKeyword === "" ||
+      task.title.toLowerCase().includes(debouncedKeyword.toLowerCase());
+
+    const priorityMatch =
+      priorityFilter === "ALL" || task.priority === priorityFilter;
+
+    const statusMatch = statusFilter === "ALL" || task.status === statusFilter;
+
+    return keywordMatch && priorityMatch && statusMatch;
+  });
 
   /* Task 추가 */
   const handleAddTask = () => {
@@ -87,7 +106,7 @@ const KanbanBoard = ({
     setShowModal(false);
   };
 
-  /* 드래그 앤 드롭 */
+  /* 드래그 */
   const handleDragEnd = (result: DropResult) => {
     const { destination, source, draggableId } = result;
     if (!destination) return;
@@ -98,94 +117,102 @@ const KanbanBoard = ({
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="w-full max-w-6xl mx-auto py-2 md:py-6">
-        {/* 검색창 */}
-        <div className="flex justify-center items-center gap-2 mb-3 mx-4 md:mx-0">
-          <input
-            value={searchKeyword}
-            onChange={(e) => setSearchKeyword(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                saveRecentKeyword(searchKeyword);
-                setDebouncedKeyword(searchKeyword);
-              }
-            }}
-            onBlur={() => {
-              saveRecentKeyword(searchKeyword);
-              setDebouncedKeyword(searchKeyword);
-            }}
-            placeholder="Task 제목 검색"
-            className="
-              w-full h-10 md:w-[400px]
-              px-4 py-2 rounded border
-              bg-white text-gray-900 placeholder-gray-400
-              dark:bg-gray-900 dark:text-white dark:placeholder-gray-400
-              dark:border-gray-700
-              focus:outline-none focus:ring-2
-              focus:ring-black dark:focus:ring-white
-            "
-          />
-
-          {searchKeyword && (
-            <button
-              onClick={() => {
-                setSearchKeyword("");
-                setDebouncedKeyword("");
+      <div className="w-full max-w-4xl mx-auto px-4 py-6">
+        {/* 컨트롤 바 */}
+        <div className="mb-6 p-4 rounded-md bg-gray-100 dark:bg-gray-800 shadow-sm flex flex-col gap-3">
+          <div className="flex flex-row gap-3 items-center">
+            {/* 검색 */}
+            <input
+              value={searchKeyword}
+              onChange={(e) => setSearchKeyword(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  saveRecentKeyword(searchKeyword);
+                  setDebouncedKeyword(searchKeyword);
+                }
               }}
-              className="
-                h-10 px-3 py-2 text-sm rounded border whitespace-nowrap
-                bg-white text-gray-700 hover:bg-gray-100
-                dark:bg-gray-900 dark:text-gray-200
-                dark:border-gray-700 dark:hover:bg-gray-800
-              "
+              onBlur={() => saveRecentKeyword(searchKeyword)}
+              placeholder="Task 제목 검색"
+              className="w-full md:flex-1 h-10 px-4 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
+            />
+
+            {/* 우선순위 필터 */}
+            <select
+              value={priorityFilter}
+              onChange={(e) =>
+                setPriorityFilter(e.target.value as Priority | "ALL")
+              }
+              className="h-10 px-4 rounded-md text-sm bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 focus:outline-none"
             >
-              초기화
-            </button>
+              <option value="ALL">우선순위</option>
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
+
+            {/* 상태 필터 */}
+            <select
+              value={statusFilter}
+              onChange={(e) =>
+                setStatusFilter(e.target.value as Task["status"] | "ALL")
+              }
+              className="h-10 px-4 rounded-md text-sm bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 focus:outline-none"
+            >
+              <option value="ALL">상태</option>
+              <option value="TODO">To Do</option>
+              <option value="IN_PROGRESS">In Progress</option>
+              <option value="DONE">Done</option>
+            </select>
+
+            {/* 전체 초기화 버튼 */}
+            {(searchKeyword ||
+              priorityFilter !== "ALL" ||
+              statusFilter !== "ALL") && (
+              <button
+                onClick={resetAllFilters}
+                className="text-xs text-gray-500 hover:text-black dark:hover:text-white"
+              >
+                초기화
+              </button>
+            )}
+          </div>
+
+          {/* 최근 검색어 */}
+          {recentKeywords.length > 0 && (
+            <div className="flex gap-2 flex-wrap">
+              {recentKeywords.map((keyword) => (
+                <div
+                  key={keyword}
+                  className="flex items-center gap-1 px-3 py-1 text-xs rounded-full bg-white dark:bg-gray-700 text-gray-700 dark:text-white"
+                >
+                  <button
+                    onClick={() => {
+                      setSearchKeyword(keyword);
+                      setDebouncedKeyword(keyword);
+                    }}
+                    className="hover:underline"
+                  >
+                    {keyword}
+                  </button>
+                  <button
+                    onClick={() => removeRecentKeyword(keyword)}
+                    className="opacity-60 hover:opacity-100"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
           )}
         </div>
 
-        {/* 최근 검색어 */}
-        {recentKeywords.length > 0 && (
-          <div className="flex justify-center gap-2 mb-4 flex-wrap">
-            {recentKeywords.map((keyword) => (
-              <div
-                key={keyword}
-                className="
-                  flex items-center gap-1 px-3 py-1 text-xs
-                  rounded-full border
-                  bg-white text-black
-                  dark:bg-gray-800 dark:text-white dark:border-gray-700
-                "
-              >
-                <button
-                  onClick={() => {
-                    setSearchKeyword(keyword);
-                    setDebouncedKeyword(keyword);
-                  }}
-                  className="hover:underline"
-                >
-                  {keyword}
-                </button>
-                <button
-                  onClick={() => removeRecentKeyword(keyword)}
-                  className="text-gray-400 hover:text-black dark:hover:text-white"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* 태스크 추가 버튼 */}
-        <div className="fixed bottom-6 right-6 z-40">
-          <button
-            onClick={() => setShowModal(true)}
-            className="bg-black text-white px-5 py-3 rounded-full shadow-lg hover:opacity-80"
-          >
-            + 새 Task 추가
-          </button>
-        </div>
+        {/* Task 추가 버튼 */}
+        <button
+          onClick={() => setShowModal(true)}
+          className="fixed bottom-6 right-6 z-40 bg-black text-white px-5 py-3 rounded-full shadow-lg hover:opacity-80"
+        >
+          + 새 Task
+        </button>
 
         {/* 추가 모달 */}
         {showModal && (
@@ -236,7 +263,7 @@ const KanbanBoard = ({
         )}
 
         {/* 컬럼 */}
-        <div className="flex flex-col md:flex-row md:gap-2 lg:gap-6 justify-center">
+        <div className="flex flex-col md:flex-row gap-4 justify-center">
           <Column
             title="To Do"
             status="TODO"

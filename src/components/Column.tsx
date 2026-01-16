@@ -31,12 +31,12 @@ const Column = ({
           {...provided.droppableProps}
           className={`
             w-full md:w-80
-            md:min-h-[500px] rounded-lg p-4 
+            md:min-h-[480px] rounded-lg p-4 
             transition-colors
             ${
               snapshot.isDraggingOver
-                ? "bg-gray-200 dark:bg-gray-700"
-                : "bg-gray-100 dark:bg-gray-900"
+                ? "bg-gray-100 dark:bg-gray-700"
+                : "bg-gray-50 dark:bg-gray-900"
             }
           `}
         >
