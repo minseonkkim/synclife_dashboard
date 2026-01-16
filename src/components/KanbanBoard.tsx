@@ -106,7 +106,7 @@ const KanbanBoard = ({
             value={searchKeyword}
             onChange={(e) => setSearchKeyword(e.target.value)}
             placeholder="Task 제목 검색"
-            className="w-72 px-4 py-2 border rounded"
+            className="w-80 px-4 py-2 border rounded"
           />
 
           {searchKeyword && (
@@ -145,12 +145,19 @@ const KanbanBoard = ({
         )}
 
         {/* 추가 버튼 */}
-        <div className="flex justify-center mb-4">
+        <div className="fixed bottom-6 right-6 z-40">
           <button
             onClick={() => setShowModal(true)}
-            className="bg-black text-white text-sm px-4 py-2 rounded hover:opacity-80"
+            className="
+      bg-black text-white
+      text-sm
+      px-5 py-3
+      rounded-full
+      shadow-lg
+      hover:opacity-80
+    "
           >
-            + 새 Task 추가
+            + 새 Task
           </button>
         </div>
 
