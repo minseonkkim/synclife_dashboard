@@ -106,12 +106,27 @@ const KanbanBoard = ({
             value={searchKeyword}
             onChange={(e) => setSearchKeyword(e.target.value)}
             placeholder="Task 제목 검색"
-            className="w-full h-10 md:w-[400px] px-4 py-2 border rounded"
+            className="
+      w-full h-10 md:w-[400px]
+      px-4 py-2 rounded border
+      bg-white text-gray-900 placeholder-gray-400
+      dark:bg-gray-900 dark:text-white dark:placeholder-gray-400
+      dark:border-gray-700
+      focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white
+    "
           />
+
           {searchKeyword && (
             <button
               onClick={() => setSearchKeyword("")}
-              className="h-10 px-3 py-2 text-sm border rounded hover:bg-gray-100 whitespace-nowrap"
+              className="
+        h-10 px-3 py-2 text-sm rounded border whitespace-nowrap
+        bg-white text-gray-700
+        hover:bg-gray-100
+        dark:bg-gray-900 dark:text-gray-200
+        dark:border-gray-700 dark:hover:bg-gray-800
+        transition
+      "
             >
               초기화
             </button>
@@ -124,7 +139,11 @@ const KanbanBoard = ({
             {recentKeywords.map((keyword) => (
               <div
                 key={keyword}
-                className="flex items-center gap-1 px-3 py-1 text-xs border rounded-full bg-white"
+                className="
+          flex items-center gap-1 px-3 py-1 text-xs border rounded-full
+          bg-white text-black
+          dark:bg-gray-800 dark:text-white dark:border-gray-700
+        "
               >
                 <button
                   onClick={() => setSearchKeyword(keyword)}
@@ -134,7 +153,7 @@ const KanbanBoard = ({
                 </button>
                 <button
                   onClick={() => removeRecentKeyword(keyword)}
-                  className="text-gray-400 hover:text-black"
+                  className="text-gray-400 hover:text-black dark:hover:text-white"
                 >
                   ✕
                 </button>

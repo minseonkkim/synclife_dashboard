@@ -33,7 +33,10 @@ const TaskCard = ({
     const regex = new RegExp(`(${keyword})`, "gi");
     return text.split(regex).map((part, idx) =>
       part.toLowerCase() === keyword.toLowerCase() ? (
-        <mark key={idx} className="bg-yellow-200 rounded px-0.5">
+        <mark
+          key={idx}
+          className="bg-yellow-200 dark:bg-yellow-500/50 rounded px-0.5"
+        >
           {part}
         </mark>
       ) : (
@@ -50,8 +53,9 @@ const TaskCard = ({
             ref={provided.innerRef}
             {...provided.draggableProps}
             {...provided.dragHandleProps}
-            className={`bg-white p-3 md:p-4 rounded shadow text-sm
+            className={`bg-white dark:bg-gray-800 p-3 md:p-4 rounded shadow text-sm
               ${snapshot.isDragging ? "shadow-lg rotate-1" : ""}
+              text-black dark:text-white
             `}
           >
             <div className="flex flex-row justify-between items-center">
@@ -67,7 +71,7 @@ const TaskCard = ({
               </span>
             </div>
 
-            <div className="flex flex-wrap gap-2 mt-2 text-xs text-gray-600">
+            <div className="flex flex-wrap gap-2 mt-2 text-xs text-gray-600 dark:text-gray-300">
               <button
                 onClick={() => setOpenView(true)}
                 className="hover:underline"
@@ -82,7 +86,7 @@ const TaskCard = ({
               </button>
               <button
                 onClick={() => setOpenDelete(true)}
-                className="hover:underline text-red-500"
+                className="hover:underline text-red-500 dark:text-red-400"
               >
                 삭제
               </button>

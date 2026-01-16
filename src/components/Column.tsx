@@ -31,10 +31,16 @@ const Column = ({
             w-full md:w-80
             md:min-h-[500px] rounded-lg p-4 
             transition-colors
-            ${snapshot.isDraggingOver ? "bg-gray-200" : "bg-gray-100"}
+            ${
+              snapshot.isDraggingOver
+                ? "bg-gray-200 dark:bg-gray-700"
+                : "bg-gray-100 dark:bg-gray-900"
+            }
           `}
         >
-          <h3 className="font-bold mb-4 text-center md:text-left">{title}</h3>
+          <h3 className="font-bold mb-4 text-center md:text-left text-black dark:text-white">
+            {title}
+          </h3>
 
           <div className="flex flex-col gap-3">
             {filtered.map((task, index) => (
