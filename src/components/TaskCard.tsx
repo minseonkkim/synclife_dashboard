@@ -50,28 +50,42 @@ const TaskCard = ({
             ref={provided.innerRef}
             {...provided.draggableProps}
             {...provided.dragHandleProps}
-            className={`bg-white p-4 rounded shadow text-sm
+            className={`bg-white p-3 md:p-4 rounded shadow text-sm
               ${snapshot.isDragging ? "shadow-lg rotate-1" : ""}
             `}
           >
-            <div className="flex justify-between">
-              <h4 className="font-semibold">
-                {" "}
+            <div className="flex flex-row justify-between items-center">
+              <h4 className="font-semibold break-words text-sm md:text-base">
                 {highlightText(task.title, highlight ?? "")}
               </h4>
 
               <span
-                className="text-[10px] px-2 py-0.5 rounded-full text-white font-bold"
+                className="mt-2 md:mt-0 text-[10px] md:text-xs px-2 py-0.5 rounded-full text-white font-bold"
                 style={{ backgroundColor: priority.color }}
               >
                 {task.priority}
               </span>
             </div>
 
-            <div className="flex gap-2 mt-2 text-xs text-gray-600">
-              <button onClick={() => setOpenView(true)}>상세</button>
-              <button onClick={() => setOpenEdit(true)}>수정</button>
-              <button onClick={() => setOpenDelete(true)}>삭제</button>
+            <div className="flex flex-wrap gap-2 mt-2 text-xs text-gray-600">
+              <button
+                onClick={() => setOpenView(true)}
+                className="hover:underline"
+              >
+                상세
+              </button>
+              <button
+                onClick={() => setOpenEdit(true)}
+                className="hover:underline"
+              >
+                수정
+              </button>
+              <button
+                onClick={() => setOpenDelete(true)}
+                className="hover:underline text-red-500"
+              >
+                삭제
+              </button>
             </div>
           </div>
         )}

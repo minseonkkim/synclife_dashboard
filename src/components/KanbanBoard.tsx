@@ -99,20 +99,19 @@ const KanbanBoard = ({
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="w-full max-w-6xl mx-auto">
+      <div className="w-full max-w-6xl mx-auto py-2 md:py-6">
         {/* 검색창 */}
-        <div className="flex justify-center items-center gap-2 mb-3">
+        <div className="flex flex-row justify-center items-center gap-2 mb-3 mx-4 md:mx-0">
           <input
             value={searchKeyword}
             onChange={(e) => setSearchKeyword(e.target.value)}
             placeholder="Task 제목 검색"
-            className="w-80 px-4 py-2 border rounded"
+            className="w-full h-10 md:w-[400px] px-4 py-2 border rounded"
           />
-
           {searchKeyword && (
             <button
               onClick={() => setSearchKeyword("")}
-              className="px-3 py-2 text-sm border rounded hover:bg-gray-100"
+              className="h-10 px-3 py-2 text-sm border rounded hover:bg-gray-100 whitespace-nowrap"
             >
               초기화
             </button>
@@ -148,23 +147,16 @@ const KanbanBoard = ({
         <div className="fixed bottom-6 right-6 z-40">
           <button
             onClick={() => setShowModal(true)}
-            className="
-      bg-black text-white
-      text-sm
-      px-5 py-3
-      rounded-full
-      shadow-lg
-      hover:opacity-80
-    "
+            className="bg-black text-white text-sm px-5 py-3 rounded-full shadow-lg hover:opacity-80"
           >
-            + 새 Task
+            + 새 Task 추가
           </button>
         </div>
 
         {/* 추가 모달 */}
         {showModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded-lg w-96">
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-2">
+            <div className="bg-white p-6 rounded-lg w-full max-w-md">
               <h2 className="text-lg font-bold mb-4">새 태스크 추가</h2>
 
               <input
@@ -210,7 +202,7 @@ const KanbanBoard = ({
         )}
 
         {/* 칸반 컬럼 */}
-        <div className="flex gap-6 justify-center">
+        <div className="flex flex-col md:flex-row md:gap-2 lg:gap-6 justify-center">
           <Column
             title="To Do"
             status="TODO"

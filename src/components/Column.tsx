@@ -27,11 +27,14 @@ const Column = ({
         <div
           ref={provided.innerRef}
           {...provided.droppableProps}
-          className={`w-72 min-h-[500px] rounded-lg p-4 transition-colors
+          className={`
+            w-full md:w-80
+            md:min-h-[500px] rounded-lg p-4 
+            transition-colors
             ${snapshot.isDraggingOver ? "bg-gray-200" : "bg-gray-100"}
           `}
         >
-          <h3 className="font-bold mb-4">{title}</h3>
+          <h3 className="font-bold mb-4 text-center md:text-left">{title}</h3>
 
           <div className="flex flex-col gap-3">
             {filtered.map((task, index) => (
