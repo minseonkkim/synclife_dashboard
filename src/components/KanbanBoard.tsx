@@ -36,7 +36,7 @@ const KanbanBoard = ({
     return stored ? JSON.parse(stored) : [];
   });
 
-  /* 디바운싱 (300ms) */
+  /* 검색 디바운싱 (필터용) */
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedKeyword(searchKeyword);
@@ -45,22 +45,21 @@ const KanbanBoard = ({
     return () => clearTimeout(timer);
   }, [searchKeyword]);
 
-  /* 최근 검색어 저장 (디바운싱 완료 후) */
-  useEffect(() => {
-    if (!debouncedKeyword.trim()) return;
+  /* 최근 검색어 저장 */
+  const saveRecentKeyword = (keyword: string) => {
+    if (!keyword.trim()) return;
 
     setRecentKeywords((prev) => {
-      const updated = [
-        debouncedKeyword,
-        ...prev.filter((k) => k !== debouncedKeyword),
-      ].slice(0, 5);
+      const updated = [keyword, ...prev.filter((k) => k !== keyword)].slice(
+        0,
+        5
+      );
 
       localStorage.setItem("recent_keywords", JSON.stringify(updated));
       return updated;
     });
-  }, [debouncedKeyword]);
+  };
 
-  /* 최근 검색어 삭제 */
   const removeRecentKeyword = (keyword: string) => {
     setRecentKeywords((prev) => {
       const updated = prev.filter((k) => k !== keyword);
@@ -69,7 +68,7 @@ const KanbanBoard = ({
     });
   };
 
-  /* 검색 필터링 (검색어 없으면 전체) */
+  /* 검색 필터 */
   const filteredTasks =
     debouncedKeyword.trim() === ""
       ? tasks
@@ -88,7 +87,7 @@ const KanbanBoard = ({
     setShowModal(false);
   };
 
-  /* 드래그앤 드롭 */
+  /* 드래그 앤 드롭 */
   const handleDragEnd = (result: DropResult) => {
     const { destination, source, draggableId } = result;
     if (!destination) return;
@@ -100,33 +99,45 @@ const KanbanBoard = ({
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <div className="w-full max-w-6xl mx-auto py-2 md:py-6">
-        {/* 검색창 */}
-        <div className="flex flex-row justify-center items-center gap-2 mb-3 mx-4 md:mx-0">
+        {/* 🔍 검색창 */}
+        <div className="flex justify-center items-center gap-2 mb-3 mx-4 md:mx-0">
           <input
             value={searchKeyword}
             onChange={(e) => setSearchKeyword(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                saveRecentKeyword(searchKeyword);
+                setDebouncedKeyword(searchKeyword);
+              }
+            }}
+            onBlur={() => {
+              saveRecentKeyword(searchKeyword);
+              setDebouncedKeyword(searchKeyword);
+            }}
             placeholder="Task 제목 검색"
             className="
-      w-full h-10 md:w-[400px]
-      px-4 py-2 rounded border
-      bg-white text-gray-900 placeholder-gray-400
-      dark:bg-gray-900 dark:text-white dark:placeholder-gray-400
-      dark:border-gray-700
-      focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white
-    "
+              w-full h-10 md:w-[400px]
+              px-4 py-2 rounded border
+              bg-white text-gray-900 placeholder-gray-400
+              dark:bg-gray-900 dark:text-white dark:placeholder-gray-400
+              dark:border-gray-700
+              focus:outline-none focus:ring-2
+              focus:ring-black dark:focus:ring-white
+            "
           />
 
           {searchKeyword && (
             <button
-              onClick={() => setSearchKeyword("")}
+              onClick={() => {
+                setSearchKeyword("");
+                setDebouncedKeyword("");
+              }}
               className="
-        h-10 px-3 py-2 text-sm rounded border whitespace-nowrap
-        bg-white text-gray-700
-        hover:bg-gray-100
-        dark:bg-gray-900 dark:text-gray-200
-        dark:border-gray-700 dark:hover:bg-gray-800
-        transition
-      "
+                h-10 px-3 py-2 text-sm rounded border whitespace-nowrap
+                bg-white text-gray-700 hover:bg-gray-100
+                dark:bg-gray-900 dark:text-gray-200
+                dark:border-gray-700 dark:hover:bg-gray-800
+              "
             >
               초기화
             </button>
@@ -140,13 +151,17 @@ const KanbanBoard = ({
               <div
                 key={keyword}
                 className="
-          flex items-center gap-1 px-3 py-1 text-xs border rounded-full
-          bg-white text-black
-          dark:bg-gray-800 dark:text-white dark:border-gray-700
-        "
+                  flex items-center gap-1 px-3 py-1 text-xs
+                  rounded-full border
+                  bg-white text-black
+                  dark:bg-gray-800 dark:text-white dark:border-gray-700
+                "
               >
                 <button
-                  onClick={() => setSearchKeyword(keyword)}
+                  onClick={() => {
+                    setSearchKeyword(keyword);
+                    setDebouncedKeyword(keyword);
+                  }}
                   className="hover:underline"
                 >
                   {keyword}
@@ -162,65 +177,17 @@ const KanbanBoard = ({
           </div>
         )}
 
-        {/* 추가 버튼 */}
+        {/* 태스크 추가 버튼 */}
         <div className="fixed bottom-6 right-6 z-40">
           <button
             onClick={() => setShowModal(true)}
-            className="bg-black text-white text-sm px-5 py-3 rounded-full shadow-lg hover:opacity-80"
+            className="bg-black text-white px-5 py-3 rounded-full shadow-lg hover:opacity-80"
           >
             + 새 Task 추가
           </button>
         </div>
 
-        {/* 추가 모달 */}
-        {showModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-2">
-            <div className="bg-white p-6 rounded-lg w-full max-w-md">
-              <h2 className="text-lg font-bold mb-4">새 태스크 추가</h2>
-
-              <input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="제목"
-                className="w-full border rounded px-3 py-2 mb-3"
-              />
-
-              <select
-                value={priority}
-                onChange={(e) => setPriority(e.target.value as Priority)}
-                className="w-full border rounded px-3 py-2 mb-3"
-              >
-                <option value="High">High</option>
-                <option value="Medium">Medium</option>
-                <option value="Low">Low</option>
-              </select>
-
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="설명 (선택)"
-                className="w-full border rounded px-3 py-2 mb-4"
-              />
-
-              <div className="flex justify-end gap-2">
-                <button
-                  onClick={() => setShowModal(false)}
-                  className="px-4 py-2 border rounded"
-                >
-                  취소
-                </button>
-                <button
-                  onClick={handleAddTask}
-                  className="px-4 py-2 bg-black text-white rounded"
-                >
-                  추가
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* 칸반 컬럼 */}
+        {/* 컬럼 */}
         <div className="flex flex-col md:flex-row md:gap-2 lg:gap-6 justify-center">
           <Column
             title="To Do"
