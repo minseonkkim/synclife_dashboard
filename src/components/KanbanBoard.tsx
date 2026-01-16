@@ -27,9 +27,16 @@ const KanbanBoard = ({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<Priority>("Medium");
+
   const [searchKeyword, setSearchKeyword] = useState("");
   const [debouncedKeyword, setDebouncedKeyword] = useState("");
 
+  const [recentKeywords, setRecentKeywords] = useState<string[]>(() => {
+    const stored = localStorage.getItem("recent_keywords");
+    return stored ? JSON.parse(stored) : [];
+  });
+
+  /* 디바운싱 (300ms) */
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedKeyword(searchKeyword);
@@ -38,6 +45,31 @@ const KanbanBoard = ({
     return () => clearTimeout(timer);
   }, [searchKeyword]);
 
+  /* 최근 검색어 저장 (디바운싱 완료 후) */
+  useEffect(() => {
+    if (!debouncedKeyword.trim()) return;
+
+    setRecentKeywords((prev) => {
+      const updated = [
+        debouncedKeyword,
+        ...prev.filter((k) => k !== debouncedKeyword),
+      ].slice(0, 5);
+
+      localStorage.setItem("recent_keywords", JSON.stringify(updated));
+      return updated;
+    });
+  }, [debouncedKeyword]);
+
+  /* 최근 검색어 삭제 */
+  const removeRecentKeyword = (keyword: string) => {
+    setRecentKeywords((prev) => {
+      const updated = prev.filter((k) => k !== keyword);
+      localStorage.setItem("recent_keywords", JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  /* 검색 필터링 (검색어 없으면 전체) */
   const filteredTasks =
     debouncedKeyword.trim() === ""
       ? tasks
@@ -45,8 +77,10 @@ const KanbanBoard = ({
           task.title.toLowerCase().includes(debouncedKeyword.toLowerCase())
         );
 
+  /* Task 추가 */
   const handleAddTask = () => {
     if (!title.trim()) return;
+
     onAddTask({ title, description, priority });
     setTitle("");
     setDescription("");
@@ -54,23 +88,20 @@ const KanbanBoard = ({
     setShowModal(false);
   };
 
+  /* 드래그앤 드롭 */
   const handleDragEnd = (result: DropResult) => {
     const { destination, source, draggableId } = result;
-
     if (!destination) return;
-
-    if (destination.droppableId === source.droppableId) {
-      return;
-    }
+    if (destination.droppableId === source.droppableId) return;
 
     onMoveTask(Number(draggableId), destination.droppableId as Task["status"]);
   };
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="w-full max-w-6xl">
+      <div className="w-full max-w-6xl mx-auto">
         {/* 검색창 */}
-        <div className="flex justify-center items-center gap-2 mb-4">
+        <div className="flex justify-center items-center gap-2 mb-3">
           <input
             value={searchKeyword}
             onChange={(e) => setSearchKeyword(e.target.value)}
@@ -88,6 +119,31 @@ const KanbanBoard = ({
           )}
         </div>
 
+        {/* 최근 검색어 */}
+        {recentKeywords.length > 0 && (
+          <div className="flex justify-center gap-2 mb-4 flex-wrap">
+            {recentKeywords.map((keyword) => (
+              <div
+                key={keyword}
+                className="flex items-center gap-1 px-3 py-1 text-xs border rounded-full bg-white"
+              >
+                <button
+                  onClick={() => setSearchKeyword(keyword)}
+                  className="hover:underline"
+                >
+                  {keyword}
+                </button>
+                <button
+                  onClick={() => removeRecentKeyword(keyword)}
+                  className="text-gray-400 hover:text-black"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* 추가 버튼 */}
         <div className="flex justify-center mb-4">
           <button
@@ -98,44 +154,46 @@ const KanbanBoard = ({
           </button>
         </div>
 
-        {/* 모달 */}
+        {/* 추가 모달 */}
         {showModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <div className="bg-white p-6 rounded-lg w-96">
-              <h2 className="text-xl font-bold mb-4">새 태스크 추가</h2>
+              <h2 className="text-lg font-bold mb-4">새 태스크 추가</h2>
+
               <input
-                type="text"
-                placeholder="제목"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
+                placeholder="제목"
                 className="w-full border rounded px-3 py-2 mb-3"
               />
+
               <select
                 value={priority}
                 onChange={(e) => setPriority(e.target.value as Priority)}
-                className="w-full border rounded px-3 py-2 mb-4"
+                className="w-full border rounded px-3 py-2 mb-3"
               >
                 <option value="High">High</option>
                 <option value="Medium">Medium</option>
                 <option value="Low">Low</option>
               </select>
+
               <textarea
-                placeholder="설명 (선택)"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full border rounded px-3 py-2 mb-3"
+                placeholder="설명 (선택)"
+                className="w-full border rounded px-3 py-2 mb-4"
               />
 
               <div className="flex justify-end gap-2">
                 <button
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 rounded border"
+                  className="px-4 py-2 border rounded"
                 >
                   취소
                 </button>
                 <button
                   onClick={handleAddTask}
-                  className="px-4 py-2 bg-black text-white rounded hover:opacity-80"
+                  className="px-4 py-2 bg-black text-white rounded"
                 >
                   추가
                 </button>
@@ -144,7 +202,7 @@ const KanbanBoard = ({
           </div>
         )}
 
-        {/* 칸반보드 컬럼 */}
+        {/* 칸반 컬럼 */}
         <div className="flex gap-6 justify-center">
           <Column
             title="To Do"
@@ -152,7 +210,7 @@ const KanbanBoard = ({
             tasks={filteredTasks}
             onUpdateTask={onUpdateTask}
             onDeleteTask={onDeleteTask}
-            searchKeyword={searchKeyword}
+            searchKeyword={debouncedKeyword}
           />
           <Column
             title="In Progress"
@@ -160,7 +218,7 @@ const KanbanBoard = ({
             tasks={filteredTasks}
             onUpdateTask={onUpdateTask}
             onDeleteTask={onDeleteTask}
-            searchKeyword={searchKeyword}
+            searchKeyword={debouncedKeyword}
           />
           <Column
             title="Done"
@@ -168,7 +226,7 @@ const KanbanBoard = ({
             tasks={filteredTasks}
             onUpdateTask={onUpdateTask}
             onDeleteTask={onDeleteTask}
-            searchKeyword={searchKeyword}
+            searchKeyword={debouncedKeyword}
           />
         </div>
       </div>
