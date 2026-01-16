@@ -21,6 +21,8 @@ const Column = ({
 }: ColumnProps) => {
   const filtered = tasks.filter((task) => task.status === status);
 
+  const isEmpty = filtered.length === 0;
+
   return (
     <Droppable droppableId={status}>
       {(provided, snapshot) => (
@@ -53,6 +55,11 @@ const Column = ({
                 highlight={searchKeyword}
               />
             ))}
+            {isEmpty && (
+              <div className="text-sm text-gray-400 dark:text-gray-500 text-center py-10">
+                {searchKeyword ? "검색 결과가 없어요" : "등록된 Task가 없어요"}
+              </div>
+            )}
             {provided.placeholder}
           </div>
         </div>
