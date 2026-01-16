@@ -11,14 +11,36 @@ interface TaskCardProps {
   index: number;
   onUpdate: (task: Task) => void;
   onDelete: (id: number) => void;
+  highlight?: string;
 }
 
-const TaskCard = ({ task, index, onUpdate, onDelete }: TaskCardProps) => {
+const TaskCard = ({
+  task,
+  index,
+  onUpdate,
+  onDelete,
+  highlight,
+}: TaskCardProps) => {
   const priority = priorityStyleMap[task.priority];
 
   const [openView, setOpenView] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
+
+  const highlightText = (text: string, keyword: string) => {
+    if (!keyword) return text;
+
+    const regex = new RegExp(`(${keyword})`, "gi");
+    return text.split(regex).map((part, idx) =>
+      part.toLowerCase() === keyword.toLowerCase() ? (
+        <mark key={idx} className="bg-yellow-200 rounded px-0.5">
+          {part}
+        </mark>
+      ) : (
+        part
+      )
+    );
+  };
 
   return (
     <>
@@ -33,7 +55,10 @@ const TaskCard = ({ task, index, onUpdate, onDelete }: TaskCardProps) => {
             `}
           >
             <div className="flex justify-between">
-              <h4 className="font-semibold">{task.title}</h4>
+              <h4 className="font-semibold">
+                {" "}
+                {highlightText(task.title, highlight ?? "")}
+              </h4>
 
               <span
                 className="text-[10px] px-2 py-0.5 rounded-full text-white font-bold"

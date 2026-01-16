@@ -8,6 +8,7 @@ interface ColumnProps {
   tasks: Task[];
   onUpdateTask: (task: Task) => void;
   onDeleteTask: (id: number) => void;
+  searchKeyword: string;
 }
 
 const Column = ({
@@ -16,6 +17,7 @@ const Column = ({
   tasks,
   onUpdateTask,
   onDeleteTask,
+  searchKeyword,
 }: ColumnProps) => {
   const filtered = tasks.filter((task) => task.status === status);
 
@@ -39,6 +41,7 @@ const Column = ({
                 index={index}
                 onUpdate={onUpdateTask}
                 onDelete={onDeleteTask}
+                highlight={searchKeyword}
               />
             ))}
             {provided.placeholder}

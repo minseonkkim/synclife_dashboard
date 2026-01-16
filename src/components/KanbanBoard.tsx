@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Task, Priority } from "../types/task";
 import Column from "./Column";
 import { DragDropContext } from "@hello-pangea/dnd";
@@ -28,10 +28,22 @@ const KanbanBoard = ({
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<Priority>("Medium");
   const [searchKeyword, setSearchKeyword] = useState("");
+  const [debouncedKeyword, setDebouncedKeyword] = useState("");
 
-  const filteredTasks = tasks.filter((task) =>
-    task.title.toLowerCase().includes(searchKeyword.toLowerCase())
-  );
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedKeyword(searchKeyword);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchKeyword]);
+
+  const filteredTasks =
+    debouncedKeyword.trim() === ""
+      ? tasks
+      : tasks.filter((task) =>
+          task.title.toLowerCase().includes(debouncedKeyword.toLowerCase())
+        );
 
   const handleAddTask = () => {
     if (!title.trim()) return;
@@ -140,6 +152,7 @@ const KanbanBoard = ({
             tasks={filteredTasks}
             onUpdateTask={onUpdateTask}
             onDeleteTask={onDeleteTask}
+            searchKeyword={searchKeyword}
           />
           <Column
             title="In Progress"
@@ -147,6 +160,7 @@ const KanbanBoard = ({
             tasks={filteredTasks}
             onUpdateTask={onUpdateTask}
             onDeleteTask={onDeleteTask}
+            searchKeyword={searchKeyword}
           />
           <Column
             title="Done"
@@ -154,6 +168,7 @@ const KanbanBoard = ({
             tasks={filteredTasks}
             onUpdateTask={onUpdateTask}
             onDeleteTask={onDeleteTask}
+            searchKeyword={searchKeyword}
           />
         </div>
       </div>
